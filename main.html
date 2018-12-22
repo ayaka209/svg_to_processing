@@ -1,0 +1,79 @@
+<!--suppress CheckEmptyScriptTag -->
+<html lang="zh">
+<head>
+    <title>123</title>
+    <script src="svg.js"></script>
+</head>
+<body>
+<!--   paste svg here.
+<svg>
+...
+</svg>
+-->
+
+<script>
+    let logPathSegments = (path) => {
+        let code = "";
+        let currentPoint = [];
+        let r = 1;
+        let pathData = path.getPathData({normalize: true});
+        let end = 0;
+        let index = 0;
+        let start = 0;
+        let movingPoint = [400.00,214.00];
+
+        for (let seg of pathData) {
+
+            index += 1;
+            if (seg.type === "M") {
+                let [x, y] = seg.values;
+                //console.log(`M ${x} ${y}`);
+                if (start === 0) {
+                    //movingPoint = [x, y];
+                    code += `translate(${x}, ${y});\n`;
+                    code += `beginShape();\n`;
+                    start = 1;
+                    if (path && path.style && path.style.fill) {
+                        let color = path.style.fill.replace('rgb', '');
+                        code += `fill${color};\n`;
+                    }
+                } else {
+
+                }
+
+                currentPoint = [x * r - movingPoint[0], y * r - movingPoint[1]];
+            } else if (seg.type === "L") {
+                let [x, y] = seg.values;
+                //console.log(`L ${x} ${y}`);
+                code +=
+                    `vertex(${(currentPoint[0]).toFixed(2)},${(currentPoint[1]).toFixed(2)});vertex(${(r * x - movingPoint[0]).toFixed(2)}, ${(r * y - movingPoint[1]).toFixed(2)});\n`;
+                currentPoint = [x * r - movingPoint[0], y * r - movingPoint[1]];
+            } else if (seg.type === "C") {
+                let [x1, y1, x2, y2, x, y] = seg.values;
+                //console.log(`C ${x1} ${y1} ${x2}, ${y2}, ${x} ${y}`);
+                code +=
+                    `vertex(${(currentPoint[0]).toFixed(2)},${(currentPoint[1]).toFixed(2)});\n`;
+                code += `bezierVertex(${(x1 - movingPoint[0]).toFixed(2)}, ${(y1 - movingPoint[1]).toFixed(2)}, ${(x2 - movingPoint[0]).toFixed(2)}, ${(y2 - movingPoint[1]).toFixed(2)}, ${(r * x - movingPoint[0]).toFixed(2)}, ${(r * y - movingPoint[1]).toFixed(2)});\n`;
+                currentPoint = [x * r - movingPoint[0], y * r - movingPoint[1]];
+            } else if (seg.type === "Z") {
+                //  console.log(`Z`, seg.values);
+                code += `endShape(CLOSE);\n\n`;
+                end = 1;
+            }
+        }
+        path.setPathData(pathData);
+        if (end === 0) {
+            code += `endShape();\n\n`;
+        }
+        // console.log(code);
+        return code;
+    };
+    let a = document.getElementsByTagName("path");
+    let code = "size(800,800);\n"; // change size here.
+    for (let p of a) {
+        code += logPathSegments(p);
+    }
+    console.log(code); // show the code
+</script>
+</body>
+</html>
