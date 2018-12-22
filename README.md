@@ -1,7 +1,7 @@
 # svg_to_processing
 a very simple web page to convert a svg to processing code
 
-based on:
+based on: (they did 99% work)
 - path-data-polyfill (MIT License) https://github.com/jarek-foksa/path-data-polyfill
 
 which is based on
